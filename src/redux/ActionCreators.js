@@ -1,6 +1,7 @@
 import * as ActionTypes from './ActionTypes';
 import { baseUrl } from '../shared/baseUrl';
 
+// campsites
 export const fetchCampsites = () => dispatch => {
     dispatch(campsitesLoading());
 
@@ -38,6 +39,7 @@ export const addCampsites = campsites => ({
     payload: campsites
 });
 
+// comments
 export const fetchComments = () => dispatch => {
     return fetch(baseUrl + 'comments')
         .then(response => {
@@ -115,6 +117,7 @@ export const postComment = (campsiteId, rating, author, text) => dispatch => {
         });
 };
 
+// promotions
 export const fetchPromotions = () => dispatch => {
     dispatch(promotionsLoading());
 
@@ -152,6 +155,7 @@ export const addPromotions = promotions => ({
     payload: promotions
 });
 
+// partners
 export const addPartners = partners => ({
     type: ActionTypes.ADD_PARTNERS,
     payload: partners
@@ -187,4 +191,48 @@ export const fetchPartners = () => dispatch => {
         .then(response => response.json())
         .then(partners => dispatch(addPartners(partners)))
         .catch(error => dispatch(partnersFailed(error.message)));
+};
+
+// feedback
+//This is all from json-server folder
+//pass in firstname from firstname
+export const postFeedback = (firstname, lastname, phoneNum, email, agree, contactType, feedback) => 
+dispatch => {
+    const newFeedback = {
+        firstname: firstname,
+        lastname: lastname,
+        phoneNum: phoneNum,
+        email: email,
+        agree: agree,
+        contactType: contactType,
+        feedback: feedback
+    }
+    
+    return fetch(baseUrl + 'feedback', {
+        method: "POST",
+        body: JSON.stringify(newFeedback),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+        .then(response => {
+            if(response.ok) {
+                return response;
+            } else {
+                const error = new Error(`Error ${response.status}: ${response.status.Text}`);
+                error.response = response;
+                throw error;
+            }
+        },
+        error => { throw error; }
+    )
+    //send back data along with unique ID
+    //response.json turns into json object
+    //dispatch means sent to store
+    .then(response => response.json())
+    .then(response => alert("Thank you for your feedback" + JSON.stringify(newFeedback)))
+    .catch(error => {
+        console.log('post comment', error.message);
+        alert('Your comment could not be posted /nError: ' + error.message);
+    });
 };
